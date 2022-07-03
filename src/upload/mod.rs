@@ -1,8 +1,8 @@
-use std::path::Path;
-
+use anyhow::Result;
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::Body;
+use std::path::Path;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
@@ -32,13 +32,13 @@ pub struct Response {}
 
 #[async_trait]
 pub trait Upload {
-    async fn upload(opts: Options) -> Response;
+    async fn upload(&self, opts: Options) -> String;
 }
 
 #[async_trait]
 impl Upload for ImageKit {
-    async fn upload(opts: Options) -> Response {
-        let mut form_data = Form::new();
+    async fn upload(&self, opts: Options) -> String {
+        let mut form = Form::new();
 
         match opts.file {
             UploadFile::Binary(file) => {
@@ -48,10 +48,32 @@ impl Upload for ImageKit {
                     .file_name(opts.file_name)
                     .mime_str("image/jpeg")
                     .unwrap();
-                form_data.part("file", form_file);
+                form = form.part("file", form_file);
             }
         }
 
-        todo!()
+        let response = self
+            .client
+            .post(&self.upload_endpoint)
+            .multipart(form)
+            .send()
+            .await
+            .unwrap();
+        let result = response.text().await.unwrap();
+
+        result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_post_form_file() {
+        let url = "http://httpbin.org/post?a=1&b=true";
+        let get_json = reqwest_multipart_form(url).await.unwrap();
+
+        println!("users: {:#?}", get_json);
     }
 }

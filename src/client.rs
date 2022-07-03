@@ -1,5 +1,5 @@
 use anyhow::Result;
-use reqwest::{header, Body, Client, Method, Request, StatusCode, Url};
+use reqwest::Client;
 
 pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/files/upload";
 
@@ -27,9 +27,7 @@ pub struct ImageKit {
 
 impl ImageKit {
     pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Self {
-        let client = Client::builder()
-            .build()
-            .expect("Failed to create client {:?}");
+        let client = Client::new();
 
         Self {
             upload_endpoint: UPLOAD_ENDPOINT.to_string(),
