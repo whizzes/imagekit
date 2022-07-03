@@ -1,3 +1,6 @@
+use anyhow::Result;
+use reqwest::{header, Body, Client, Method, Request, StatusCode, Url};
+
 pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/files/upload";
 
 /// An ImageKit.io API Client Instance
@@ -19,19 +22,27 @@ pub struct ImageKit {
     pub(crate) public_key: String,
     pub(crate) private_key: String,
     pub(crate) url_endpoint: String,
+    pub(crate) client: Client,
 }
 
 impl ImageKit {
     pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Self {
+        let client = Client::builder()
+            .build()
+            .expect("Failed to create client {:?}");
+
         Self {
             upload_endpoint: UPLOAD_ENDPOINT.to_string(),
             public_key: public_key.to_string(),
             private_key: private_key.to_string(),
             url_endpoint: url_endpoint.to_string(),
+            client,
         }
     }
 
-    /// Updates the `upload_endpoint` used for this client instance.
+    /// Returns a mutable reference to the `upload_endpoint` used by this
+    /// ImageKit client instance. Can be used to update the instance value
+    /// or retrieve the value.
     ///
     /// ```
     /// use imagekit::client::ImageKit;
@@ -45,7 +56,7 @@ impl ImageKit {
     ///
     /// *image_kit.upload_endpoint() = new_endpoint.clone();
     ///
-    /// assert_eq!(image_kit.upload_endpoint().to_owned(), new_endpoint);
+    /// assert_eq!(image_kit.upload_endpoint().to_owned, new_endpoint);
     /// ```
     pub fn upload_endpoint(&mut self) -> &mut String {
         &mut self.upload_endpoint
