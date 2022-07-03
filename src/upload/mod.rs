@@ -1,12 +1,15 @@
-use anyhow::Result;
+mod types;
+
+use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::Body;
-use std::path::Path;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::ImageKit;
+
+use self::types::{ErrorResponse, Response};
 
 pub enum UploadFile {
     Binary(File),
@@ -28,16 +31,15 @@ pub struct Options {
     file_name: String,
 }
 
-pub struct Response {}
-
 #[async_trait]
 pub trait Upload {
-    async fn upload(&self, opts: Options) -> String;
+    /// Uploads an image with the provided `Options`
+    async fn upload(&self, opts: Options) -> Result<Response>;
 }
 
 #[async_trait]
 impl Upload for ImageKit {
-    async fn upload(&self, opts: Options) -> String {
+    async fn upload(&self, opts: Options) -> Result<Response> {
         let mut form = Form::new();
 
         form = form.text("fileName", opts.file_name.clone());
@@ -62,9 +64,17 @@ impl Upload for ImageKit {
             .send()
             .await
             .unwrap();
-        let result = response.text().await.unwrap();
+        let status = response.status();
 
-        result
+        if status.as_u16() > 299 {
+            let result = response.json::<ErrorResponse>().await.unwrap();
+
+            bail!(result.message);
+        }
+
+        let result = response.json::<Response>().await.unwrap();
+
+        Ok(result)
     }
 }
 
@@ -81,8 +91,9 @@ mod tests {
             file: upload_file,
             file_name: "ferris".to_string(),
         };
-        let result = imagekit.upload(opts).await;
+        let result = imagekit.upload(opts).await.unwrap();
 
-        assert_eq!(result, String::default());
+        assert_eq!(result.height, 640);
+        assert_eq!(result.width, 640);
     }
 }
