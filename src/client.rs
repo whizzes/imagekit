@@ -1,5 +1,6 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use reqwest::Client;
+use std::env::var;
 
 pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/files/upload";
 
@@ -38,6 +39,22 @@ impl ImageKit {
         }
     }
 
+    pub fn from_env() -> Result<Self> {
+        let public_key = ImageKit::env("IMAGEKIT_PUBLIC_KEY")?;
+        let private_key = ImageKit::env("IMAGEKIT_PRIVATE_KEY")?;
+        let url_endpoint = ImageKit::env("IMAGEKIT_URL_ENDPOINT")?;
+        let imagekit = Self::new(public_key, private_key, url_endpoint);
+
+        Ok(imagekit)
+    }
+
+    fn env(key: &str) -> Result<String> {
+        match var(key) {
+            Ok(value) => Ok(value),
+            Err(err) => bail!(err),
+        }
+    }
+
     /// Returns a mutable reference to the `upload_endpoint` used by this
     /// ImageKit client instance. Can be used to update the instance value
     /// or retrieve the value.
@@ -54,7 +71,7 @@ impl ImageKit {
     ///
     /// *image_kit.upload_endpoint() = new_endpoint.clone();
     ///
-    /// assert_eq!(image_kit.upload_endpoint().to_owned, new_endpoint);
+    /// assert_eq!(image_kit.upload_endpoint().to_owned(), new_endpoint);
     /// ```
     pub fn upload_endpoint(&mut self) -> &mut String {
         &mut self.upload_endpoint
@@ -66,7 +83,7 @@ mod tests {
     use super::ImageKit;
 
     #[test]
-    fn it_updates_the_upload_endpoint() {
+    fn updates_the_upload_endpoint() {
         let mut image_kit = ImageKit::new(
             "your_public_api_key",
             "your_private_api_key",

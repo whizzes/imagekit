@@ -40,6 +40,7 @@ impl Upload for ImageKit {
     async fn upload(&self, opts: Options) -> String {
         let mut form = Form::new();
 
+        form = form.text("fileName", opts.file_name.clone());
         match opts.file {
             UploadFile::Binary(file) => {
                 let stream = FramedRead::new(file, BytesCodec::new());
@@ -52,9 +53,11 @@ impl Upload for ImageKit {
             }
         }
 
+        let private_key = self.private_key.to_owned();
         let response = self
             .client
             .post(&self.upload_endpoint)
+            .basic_auth::<String, String>(private_key, None)
             .multipart(form)
             .send()
             .await
@@ -70,10 +73,16 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_post_form_file() {
-        let url = "http://httpbin.org/post?a=1&b=true";
-        let get_json = reqwest_multipart_form(url).await.unwrap();
+    async fn upload_image_from_file() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let file = File::open("assets/ferris.jpeg").await.unwrap();
+        let upload_file = UploadFile::from(file);
+        let opts = Options {
+            file: upload_file,
+            file_name: "ferris".to_string(),
+        };
+        let result = imagekit.upload(opts).await;
 
-        println!("users: {:#?}", get_json);
+        assert_eq!(result, String::default());
     }
 }
