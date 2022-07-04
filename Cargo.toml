@@ -3,11 +3,12 @@ name = "imagekit"
 version = "0.1.0-beta+1"
 edition = "2021"
 authors = ["Esteban Borai <estebanborai@gmail.com>"]
-description = "Simple and configurable command-line HTTP server"
+description = "Rust API Client for ImageKit.io a file storage and image processing service"
 repository = "https://github.com/EstebanBorai/imagekit"
 categories = ["web-programming"]
 keywords = ["imagekit", "api", "bindings", "image", "upload"]
 readme = "README.md"
+license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
