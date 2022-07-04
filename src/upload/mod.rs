@@ -1,9 +1,11 @@
 mod types;
 
+use std::result;
+
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
-use reqwest::Body;
+use reqwest::{Body, StatusCode};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
@@ -64,22 +66,23 @@ impl Upload for ImageKit {
             .send()
             .await
             .unwrap();
-        let status = response.status();
 
-        if status.as_u16() > 299 {
-            let result = response.json::<ErrorResponse>().await.unwrap();
+        if matches!(response.status(), StatusCode::OK) {
+            let result = response.json::<Response>().await.unwrap();
 
-            bail!(result.message);
+            return Ok(result);
         }
 
-        let result = response.json::<Response>().await.unwrap();
+        let result = response.json::<ErrorResponse>().await.unwrap();
 
-        Ok(result)
+        bail!(result.message);
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::types::FileType;
+
     use super::*;
 
     #[tokio::test]
@@ -93,7 +96,8 @@ mod tests {
         };
         let result = imagekit.upload(opts).await.unwrap();
 
-        assert_eq!(result.height, 640);
-        assert_eq!(result.width, 640);
+        assert_eq!(result.file_type, FileType::Image);
+        assert_eq!(result.height.unwrap(), 640);
+        assert_eq!(result.width.unwrap(), 640);
     }
 }
