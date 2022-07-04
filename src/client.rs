@@ -1,4 +1,9 @@
-pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/files/upload";
+use anyhow::{bail, Result};
+use reqwest::Client;
+use std::env::var;
+
+pub const FILES_ENDPOINT: &str = "https://api.imagekit.io/v1/files";
+pub const UPLOAD_ENDPOINT: &str = "https://upload.imagekit.io/api/v1/files/upload";
 
 /// An ImageKit.io API Client Instance
 ///
@@ -16,22 +21,46 @@ pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/fil
 /// `upload_endpoint` method.
 pub struct ImageKit {
     pub(crate) upload_endpoint: String,
+    #[allow(dead_code)]
     pub(crate) public_key: String,
     pub(crate) private_key: String,
+    #[allow(dead_code)]
     pub(crate) url_endpoint: String,
+    pub(crate) client: Client,
 }
 
 impl ImageKit {
     pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Self {
+        let client = Client::new();
+
         Self {
             upload_endpoint: UPLOAD_ENDPOINT.to_string(),
             public_key: public_key.to_string(),
             private_key: private_key.to_string(),
             url_endpoint: url_endpoint.to_string(),
+            client,
         }
     }
 
-    /// Updates the `upload_endpoint` used for this client instance.
+    pub fn from_env() -> Result<Self> {
+        let public_key = ImageKit::env("IMAGEKIT_PUBLIC_KEY")?;
+        let private_key = ImageKit::env("IMAGEKIT_PRIVATE_KEY")?;
+        let url_endpoint = ImageKit::env("IMAGEKIT_URL_ENDPOINT")?;
+        let imagekit = Self::new(public_key, private_key, url_endpoint);
+
+        Ok(imagekit)
+    }
+
+    fn env(key: &str) -> Result<String> {
+        match var(key) {
+            Ok(value) => Ok(value),
+            Err(err) => bail!(err),
+        }
+    }
+
+    /// Returns a mutable reference to the `upload_endpoint` used by this
+    /// ImageKit client instance. Can be used to update the instance value
+    /// or retrieve the value.
     ///
     /// ```
     /// use imagekit::client::ImageKit;
@@ -57,7 +86,7 @@ mod tests {
     use super::ImageKit;
 
     #[test]
-    fn it_updates_the_upload_endpoint() {
+    fn updates_the_upload_endpoint() {
         let mut image_kit = ImageKit::new(
             "your_public_api_key",
             "your_private_api_key",
