@@ -1,6 +1,4 @@
-mod types;
-
-use std::result;
+pub mod types;
 
 use anyhow::{bail, Result};
 use async_trait::async_trait;
@@ -9,9 +7,9 @@ use reqwest::{Body, StatusCode};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::ImageKit;
+use crate::{ErrorResponse, ImageKit};
 
-use self::types::{ErrorResponse, Response};
+use self::types::Response;
 
 pub enum UploadFile {
     Binary(File),
@@ -23,6 +21,9 @@ impl From<File> for UploadFile {
     }
 }
 
+/// Options sent to the server as part of the `Form` when uploding a file.
+///
+/// Refer: https://docs.imagekit.io/api-reference/upload-file-api/server-side-file-upload#request-structure-multipart-form-data
 pub struct Options {
     /// File to upload
     file: UploadFile,
@@ -31,6 +32,17 @@ pub struct Options {
     /// The filename must only have alphanumeric characters (a-z, A-Z and/or 0-9),
     /// allowed symbols include `.`, `_`, and `-`.
     file_name: String,
+}
+
+impl Options {
+    /// Creates a new instance of `Options` with the provided `UploadFile` and
+    /// file name.
+    pub fn new<T: ToString>(file: UploadFile, file_name: T) -> Self {
+        Self {
+            file,
+            file_name: file_name.to_string(),
+        }
+    }
 }
 
 #[async_trait]
@@ -76,28 +88,5 @@ impl Upload for ImageKit {
         let result = response.json::<ErrorResponse>().await.unwrap();
 
         bail!(result.message);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::types::FileType;
-
-    use super::*;
-
-    #[tokio::test]
-    async fn upload_image_from_file() {
-        let imagekit = ImageKit::from_env().unwrap();
-        let file = File::open("assets/ferris.jpeg").await.unwrap();
-        let upload_file = UploadFile::from(file);
-        let opts = Options {
-            file: upload_file,
-            file_name: "ferris".to_string(),
-        };
-        let result = imagekit.upload(opts).await.unwrap();
-
-        assert_eq!(result.file_type, FileType::Image);
-        assert_eq!(result.height.unwrap(), 640);
-        assert_eq!(result.width.unwrap(), 640);
     }
 }

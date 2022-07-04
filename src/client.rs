@@ -2,7 +2,8 @@ use anyhow::{bail, Result};
 use reqwest::Client;
 use std::env::var;
 
-pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/files/upload";
+pub const FILES_ENDPOINT: &str = "https://api.imagekit.io/v1/files";
+pub const UPLOAD_ENDPOINT: &str = "https://upload.imagekit.io/api/v1/files/upload";
 
 /// An ImageKit.io API Client Instance
 ///
@@ -20,8 +21,10 @@ pub const UPLOAD_ENDPOINT: &'static str = "https://upload.imagekit.io/api/v1/fil
 /// `upload_endpoint` method.
 pub struct ImageKit {
     pub(crate) upload_endpoint: String,
+    #[allow(dead_code)]
     pub(crate) public_key: String,
     pub(crate) private_key: String,
+    #[allow(dead_code)]
     pub(crate) url_endpoint: String,
     pub(crate) client: Client,
 }

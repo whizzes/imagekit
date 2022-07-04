@@ -62,10 +62,3 @@ pub struct Response {
     /// or aws-auto-tagging extensions.
     pub ai_tags: Option<Vec<AiTag>>,
 }
-
-/// Response struct returned on failed requests
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ErrorResponse {
-    pub message: String,
-}
