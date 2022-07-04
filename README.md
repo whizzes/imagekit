@@ -7,7 +7,6 @@
       width="250"
     />
   </div>
-  <h1 align="center" style="display: none;">imagekit</h1>
   <h4 align="center">
     Rust API Client for ImageKit.io a file storage and image processing
     service
