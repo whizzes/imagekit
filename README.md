@@ -106,6 +106,34 @@ an issue, pull request or discussion.
 
 > If you notice theres missing features in this list, please open an issue or PR.
 
+## Release
+
+In order to create a release you must push a Git tag as follows
+
+```sh
+git tag -a <version> -m <message>
+```
+
+**Example**
+
+```sh
+git tag -a v0.1.0 -m "First release"
+```
+
+> Tags must follow semver conventions
+> Tags must be prefixed with a lowercase `v` letter.
+
+Then push tags as follows:
+
+```sh
+git push origin main --follow-tags
+```
+
+## Contributing
+
+Every contribution to this project is welcome. Feel free to open a pull request,
+an issue or just by starting this project.
+
 ## License
 
 As most Rust projects, this crate is licensed under both, the Apache License
