@@ -2,7 +2,7 @@
   <div align="center">
     <img
       alt="ImageKit Logo"
-      src="https://raw.githubusercontent.com/EstebanBorai/imagekit/main/assets/imagekit.svg"
+      src="https://raw.githubusercontent.com/EstebanBorai/imagekit/main/assets/imagekit.png"
       height="52"
       width="250"
     />
