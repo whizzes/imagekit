@@ -1,10 +1,13 @@
 pub mod types;
 
+use std::io::Cursor;
+
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, StatusCode};
 use tokio::fs::File;
+use tokio::io::BufReader;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::{ErrorResponse, ImageKit};
@@ -13,11 +16,18 @@ use self::types::Response;
 
 pub enum UploadFile {
     Binary(File),
+    Bytes(Vec<u8>),
 }
 
 impl From<File> for UploadFile {
     fn from(file: File) -> Self {
         UploadFile::Binary(file)
+    }
+}
+
+impl From<Vec<u8>> for UploadFile {
+    fn from(value: Vec<u8>) -> Self {
+        UploadFile::Bytes(value)
     }
 }
 
@@ -60,6 +70,17 @@ impl Upload for ImageKit {
         match opts.file {
             UploadFile::Binary(file) => {
                 let stream = FramedRead::new(file, BytesCodec::new());
+                let file_body = Body::wrap_stream(stream);
+                let form_file = Part::stream(file_body)
+                    .file_name(opts.file_name)
+                    .mime_str("image/jpeg")
+                    .unwrap();
+                form = form.part("file", form_file);
+            }
+            UploadFile::Bytes(file_bytes) => {
+                let cursor = Cursor::new(file_bytes);
+                let buf_reader = BufReader::new(cursor);
+                let stream = FramedRead::new(buf_reader, BytesCodec::new());
                 let file_body = Body::wrap_stream(stream);
                 let form_file = Part::stream(file_body)
                     .file_name(opts.file_name)
