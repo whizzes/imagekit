@@ -11,11 +11,15 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
 
 [dependencies]
 anyhow = "1.0.58"
 async-trait = "0.1.56"
-reqwest = { version = "0.11.11", features = ["json", "multipart", "stream"] }
+reqwest = { version = "0.11.11", features = ["json", "multipart", "stream"], default_features = false }
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 tokio = { version = "1.19.2", features = ["macros", "rt-multi-thread"] }
