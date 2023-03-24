@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Builds for ${{ matrix.os }}
+    name: Builds for ${{ matrix.os }} with ${{ matrix.features }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,6 +15,10 @@ jobs:
           - linux
           - macos
           - windows
+
+        features:
+          - native-tls
+          - rustls-tls
 
         include:
           - name: linux
@@ -42,4 +46,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --locked
+          args: --release --locked --no-default-features --features ${{ matrix.features }}
