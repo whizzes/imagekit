@@ -19,7 +19,7 @@ rustls-tls = ["reqwest/rustls-tls"]
 [dependencies]
 anyhow = "1.0.58"
 async-trait = "0.1.56"
-reqwest = { version = "0.11.11", features = ["json", "multipart", "stream"], default_features = false }
+reqwest = { version = "0.11.15", features = ["json", "multipart", "stream"], default_features = false }
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 tokio = { version = "1.19.2", features = ["macros", "rt-multi-thread"] }
