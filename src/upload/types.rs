@@ -42,7 +42,6 @@ pub struct Response {
     pub name: String,
     /// Size of the image file in Bytes
     pub size: u64,
-    /// An object containing the file or file version's id (versionId) and name.
     pub version_info: VersionInfo,
     /// The relative path of the file. In the case of an image, you can use
     /// this path to construct different transformations.
@@ -56,7 +55,11 @@ pub struct Response {
     /// Width of the image in pixels (Only for Images)
     pub width: Option<u64>,
     /// In the case of an image, a small thumbnail URL.
-    pub thumbnail_url: String,
+    /// Since the API has not normalize some fields such as thumbnail
+    /// A provided workaround is to attempt the parsing from "thumbnail_url" or "thumbnail"
+    /// This could occur in repeating the same proccess twice so it may have a performance impact
+    #[serde(alias = "thumbnail")]
+    pub thumbnail_url: Option<String>,
     /// Array of AITags associated with the image. If no AITags are set, it
     /// will be null. These tags can be added using the google-auto-tagging
     /// or aws-auto-tagging extensions.
