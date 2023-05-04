@@ -56,7 +56,11 @@ pub struct Response {
     /// Width of the image in pixels (Only for Images)
     pub width: Option<u64>,
     /// In the case of an image, a small thumbnail URL.
-    pub thumbnail_url: String,
+    /// Since the API has not normalized some fields such as thumbnail
+    /// A provided workaround is to attempt the parsing from "thumbnail_url" or "thumbnail"
+    /// CHECK: Could this incur in repeating the same proccess twice so it may have a performance impact?
+    #[serde(alias = "thumbnail")]
+    pub thumbnail_url: Option<String>,
     /// Array of AITags associated with the image. If no AITags are set, it
     /// will be null. These tags can be added using the google-auto-tagging
     /// or aws-auto-tagging extensions.

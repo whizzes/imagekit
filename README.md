@@ -33,6 +33,7 @@ Then create an instance of `ImageKit` and initialize the client.
 
 ```rust
 use imagekit::ImageKit;
+use imagekit::management::Details;
 use imagekit::delete::Delete;
 use imagekit::upload::types::FileType;
 use imagekit::upload::{Options, Upload, UploadFile};
@@ -50,6 +51,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = File::open("assets/ferris.jpeg").await.unwrap();
     let opts = Options::new(upload_file, "ferris");
     let upload_result = imagekit.upload(opts).await.unwrap();
+
+    // Retrieve details from a given file, in this case the file we just uploaded
+    let details_result = imagekit.upload(opts).await.unwrap();
 
     // Delete a file
     let delete_result = imagekit.delete(upload_result.file_id).await;
@@ -74,7 +78,7 @@ an issue, pull request or discussion.
 - [ ] File Management
   - [ ] List Files
   - [ ] Search Files
-  - [ ] Get File Details
+  - [x] Get File Details
   - [ ] Get File Versions
   - [ ] Get File Metadata
   - [ ] Custom Metadata Fields

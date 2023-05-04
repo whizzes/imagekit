@@ -14,6 +14,9 @@ use crate::{ErrorResponse, ImageKit};
 
 use self::types::Response;
 
+/// Default Upload Endpoint used by ImageKit
+pub const UPLOAD_ENDPOINT: &str = "https://upload.imagekit.io/api/v1/files/upload";
+
 pub enum UploadFile {
     Binary(File),
     Bytes(Vec<u8>),
@@ -35,6 +38,10 @@ impl From<Vec<u8>> for UploadFile {
 ///
 /// Refer: https://docs.imagekit.io/api-reference/upload-file-api/server-side-file-upload#request-structure-multipart-form-data
 pub struct Options {
+    /// Upload Endpoint to use, by default:
+    /// `https://upload.imagekit.io/api/v1/files/upload`
+    /// is used.
+    endpoint: String,
     /// File to upload
     file: UploadFile,
     /// Name to set to the file being uploaded
@@ -51,6 +58,23 @@ impl Options {
         Self {
             file,
             file_name: file_name.to_string(),
+            ..Default::default()
+        }
+    }
+
+    /// Sets the endpoint to use when uploading the file.
+    pub fn endpoint<T: AsRef<str> + Into<String>>(mut self, endpoint: T) -> Self {
+        self.endpoint = endpoint.into();
+        self
+    }
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            endpoint: UPLOAD_ENDPOINT.to_string(),
+            file: UploadFile::Bytes(vec![]),
+            file_name: "untitled".to_string(),
         }
     }
 }
@@ -90,11 +114,9 @@ impl Upload for ImageKit {
             }
         }
 
-        let private_key = self.private_key.to_owned();
         let response = self
             .client
-            .post(&self.upload_endpoint)
-            .basic_auth::<String, String>(private_key, None)
+            .post(opts.endpoint)
             .multipart(form)
             .send()
             .await
