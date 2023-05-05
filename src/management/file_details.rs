@@ -20,8 +20,7 @@ impl Details for ImageKit {
             .get(format!("{FILES_ENDPOINT}/{id}/details"))
             .basic_auth::<&str, &str>(&self.private_key, None)
             .send()
-            .await
-            .unwrap();
+            .await?;
 
         if matches!(response.status(), StatusCode::OK) {
             let result = response.json::<Response>().await.unwrap();
