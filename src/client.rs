@@ -32,30 +32,27 @@ pub struct ImageKit {
 }
 
 impl ImageKit {
-    pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Self {
+    pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Result<Self> {
         let creds = Credentials::new(&private_key.to_string(), "").as_http_header();
         let mut headers = HeaderMap::new();
 
-        headers.insert(AUTHORIZATION, HeaderValue::from_str(&creds).unwrap());
+        headers.insert(AUTHORIZATION, HeaderValue::from_str(&creds)?);
 
-        let client = ClientBuilder::new()
-            .default_headers(headers)
-            .build()
-            .unwrap();
+        let client = ClientBuilder::new().default_headers(headers).build()?;
 
-        Self {
+        Ok(Self {
             public_key: public_key.to_string(),
             private_key: private_key.to_string(),
             url_endpoint: url_endpoint.to_string(),
             client,
-        }
+        })
     }
 
     pub fn from_env() -> Result<Self> {
         let public_key = ImageKit::env("IMAGEKIT_PUBLIC_KEY")?;
         let private_key = ImageKit::env("IMAGEKIT_PRIVATE_KEY")?;
         let url_endpoint = ImageKit::env("IMAGEKIT_URL_ENDPOINT")?;
-        let imagekit = Self::new(public_key, private_key, url_endpoint);
+        let imagekit = Self::new(public_key, private_key, url_endpoint)?;
 
         Ok(imagekit)
     }
