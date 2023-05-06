@@ -16,14 +16,7 @@ impl Delete for ImageKit {
     async fn delete<T: ToString + Send>(&self, file_id: T) -> Result<()> {
         let url_string = format!("{}/{}", FILES_ENDPOINT, file_id.to_string());
         let endpoint_url = Url::parse(&url_string).unwrap();
-        let private_key = self.private_key.to_owned();
-        let response = self
-            .client
-            .delete(endpoint_url)
-            .basic_auth::<String, String>(private_key, None)
-            .send()
-            .await
-            .unwrap();
+        let response = self.client.delete(endpoint_url).send().await.unwrap();
 
         if matches!(response.status(), StatusCode::NO_CONTENT) {
             return Ok(());
