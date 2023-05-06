@@ -48,7 +48,7 @@ mod tests {
         let opts = Options::new(upload_file, "ferris");
         let upload_result = imagekit.upload(opts).await.unwrap();
 
-        let detail_result = imagekit.get_file_details(&upload_result.file_id).await;
+        let detail_result = imagekit.get_file_details(upload_result.file_id).await;
         assert!(detail_result.is_ok());
     }
 }
