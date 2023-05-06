@@ -24,6 +24,7 @@ pub const FILES_ENDPOINT: &str = "https://api.imagekit.io/v1/files";
 pub struct ImageKit {
     #[allow(dead_code)]
     pub(crate) public_key: String,
+    #[allow(dead_code)]
     pub(crate) private_key: String,
     #[allow(dead_code)]
     pub(crate) url_endpoint: String,
