@@ -74,7 +74,7 @@ an issue, pull request or discussion.
 - [ ] File Management
   - [ ] List Files
   - [ ] Search Files
-  - [ ] Get File Details
+  - [x] Get File Details
   - [ ] Get File Versions
   - [ ] Get File Metadata
   - [ ] Custom Metadata Fields
