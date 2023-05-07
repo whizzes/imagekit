@@ -19,6 +19,7 @@ rustls-tls = ["reqwest/rustls-tls"]
 [dependencies]
 anyhow = "1.0.58"
 async-trait = "0.1.56"
+http-auth-basic = "0.3.3"
 reqwest = { version = "0.11.15", features = ["json", "multipart", "stream"], default_features = false }
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
