@@ -18,7 +18,6 @@ impl Details for ImageKit {
         let response = self
             .client
             .get(format!("{FILES_ENDPOINT}/{id}/details"))
-            .basic_auth::<&str, &str>(&self.private_key, None)
             .send()
             .await?;
 

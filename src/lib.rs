@@ -14,7 +14,7 @@ pub use upload::Upload;
 mod tests {
     use tokio::fs::File;
 
-    use crate::file_details::Details;
+    use super::file_details::Details;
 
     use super::delete::Delete;
     use super::upload::types::FileType;
