@@ -15,7 +15,6 @@ mod tests {
     use tokio::fs::File;
 
     use super::file_details::Details;
-
     use super::delete::Delete;
     use super::upload::types::FileType;
     use super::upload::{Options, Upload, UploadFile};
