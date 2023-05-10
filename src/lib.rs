@@ -39,6 +39,7 @@ mod tests {
 
         assert!(delete_result.is_ok());
     }
+
     #[tokio::test]
     async fn uploads_and_retrieve_information() {
         let imagekit = ImageKit::from_env().unwrap();
