@@ -3,6 +3,7 @@ pub mod delete;
 pub mod management;
 pub mod types;
 pub mod upload;
+pub mod error;
 
 pub use client::ImageKit;
 pub use delete::Delete;
