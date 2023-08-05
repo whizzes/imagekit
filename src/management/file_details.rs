@@ -4,7 +4,10 @@ use anyhow::Result;
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
-use crate::{client::FILES_ENDPOINT, upload::types::Response, ImageKit, error::Error};
+use crate::client::FILES_ENDPOINT;
+use crate::client::upload::types::Response;
+use crate::client::ImageKit;
+use crate::client::error::Error;
 
 #[async_trait]
 pub trait Details {
