@@ -3,10 +3,10 @@ use std::fmt::Display;
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
-use crate::client::FILES_ENDPOINT;
-use crate::upload::types::Response;
 use crate::client::ImageKit;
-use crate::error::{Result, Error};
+use crate::client::FILES_ENDPOINT;
+use crate::error::{Error, Result};
+use crate::upload::types::Response;
 
 #[async_trait]
 pub trait Details {

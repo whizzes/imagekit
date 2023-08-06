@@ -1,10 +1,10 @@
 use std::env::var;
 
+use crate::error::Error;
 use anyhow::Result;
 use http_auth_basic::Credentials;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::{Client, ClientBuilder};
-use crate::error::Error;
 
 pub const FILES_ENDPOINT: &str = "https://api.imagekit.io/v1/files";
 

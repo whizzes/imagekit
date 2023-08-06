@@ -1,10 +1,9 @@
-
 use async_trait::async_trait;
 use reqwest::{StatusCode, Url};
 
 use crate::client::FILES_ENDPOINT;
+use crate::error::{Error, Result};
 use crate::ImageKit;
-use crate::error::{Result, Error};
 #[async_trait]
 pub trait Delete {
     /// Deletes the file with the provided File ID

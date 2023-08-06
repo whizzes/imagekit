@@ -2,7 +2,6 @@ pub mod types;
 
 use std::io::Cursor;
 
-
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, StatusCode};
@@ -10,8 +9,8 @@ use tokio::fs::File;
 use tokio::io::BufReader;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::error::{Result, Error};
-use crate::ImageKit ;
+use crate::error::{Error, Result};
+use crate::ImageKit;
 
 use self::types::Response;
 

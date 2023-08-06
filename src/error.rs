@@ -1,7 +1,7 @@
-use thiserror;
-use reqwest::{StatusCode, header};
-use std::env::VarError;
 use anyhow;
+use reqwest::{header, StatusCode};
+use std::env::VarError;
+use thiserror;
 
 /// Custom error handling
 /// Check this out: https://docs.imagekit.io/api-reference/api-introduction#error-codes
@@ -16,7 +16,7 @@ pub enum Error {
     // Env doesn't exist or it's not parseable
     #[error("Couldn't find or parse: {0}")]
     Env(#[from] VarError),
-    // Error while deserializing the response 
+    // Error while deserializing the response
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
     /// Unauthorized 401 error code
@@ -40,8 +40,11 @@ impl Error {
             StatusCode::UNAUTHORIZED => Self::Forbidden(reason.to_string()),
             StatusCode::FORBIDDEN => Self::Forbidden(reason.to_string()),
             StatusCode::TOO_MANY_REQUESTS => Self::TooManyRequests(reason.to_string()),
-            StatusCode::BAD_GATEWAY | StatusCode::INTERNAL_SERVER_ERROR | StatusCode::SERVICE_UNAVAILABLE | StatusCode::GATEWAY_TIMEOUT => Self::InternalServerError(reason.to_string()),
-            _ => unreachable!() // The error codes should be these as documentation reports. However, this is attached to change in future breaking changes in the API
+            StatusCode::BAD_GATEWAY
+            | StatusCode::INTERNAL_SERVER_ERROR
+            | StatusCode::SERVICE_UNAVAILABLE
+            | StatusCode::GATEWAY_TIMEOUT => Self::InternalServerError(reason.to_string()),
+            _ => unreachable!(), // The error codes should be these as documentation reports. However, this is attached to change in future breaking changes in the API
         }
     }
 }
