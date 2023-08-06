@@ -1,4 +1,4 @@
- use std::env::var;
+use std::env::var;
 
 use anyhow::Result;
 use http_auth_basic::Credentials;

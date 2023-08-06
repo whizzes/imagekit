@@ -1,6 +1,7 @@
 use thiserror;
 use reqwest::{StatusCode, header};
 use std::env::VarError;
+use anyhow;
 
 /// Custom error handling
 /// Check this out: https://docs.imagekit.io/api-reference/api-introduction#error-codes
@@ -44,3 +45,5 @@ impl Error {
         }
     }
 }
+
+pub type Result<T> = anyhow::Result<T, Error>;

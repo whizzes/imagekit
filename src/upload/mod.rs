@@ -2,7 +2,7 @@ pub mod types;
 
 use std::io::Cursor;
 
-use anyhow::Result;
+
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, StatusCode};
@@ -10,7 +10,7 @@ use tokio::fs::File;
 use tokio::io::BufReader;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::error::Error;
+use crate::error::{Result, Error};
 use crate::ImageKit ;
 
 use self::types::Response;
@@ -83,12 +83,12 @@ impl Default for Options {
 #[async_trait]
 pub trait Upload {
     /// Uploads an image with the provided `Options`
-    async fn upload(&self, opts: Options) -> Result<Response, Error>;
+    async fn upload(&self, opts: Options) -> Result<Response>;
 }
 
 #[async_trait]
 impl Upload for ImageKit {
-    async fn upload(&self, opts: Options) -> Result<Response, Error> {
+    async fn upload(&self, opts: Options) -> Result<Response> {
         let mut form = Form::new();
 
         form = form.text("fileName", opts.file_name.clone());

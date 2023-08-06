@@ -1,19 +1,19 @@
-use anyhow::Result;
+
 use async_trait::async_trait;
 use reqwest::{StatusCode, Url};
 
 use crate::client::FILES_ENDPOINT;
 use crate::ImageKit;
-use crate::error::Error;
+use crate::error::{Result, Error};
 #[async_trait]
 pub trait Delete {
     /// Deletes the file with the provided File ID
-    async fn delete<T: ToString + Send>(&self, file_id: T) -> Result<(), Error>;
+    async fn delete<T: ToString + Send>(&self, file_id: T) -> Result<()>;
 }
 
 #[async_trait]
 impl Delete for ImageKit {
-    async fn delete<T: ToString + Send>(&self, file_id: T) -> Result<(), Error> {
+    async fn delete<T: ToString + Send>(&self, file_id: T) -> Result<()> {
         let url_string = format!("{}/{}", FILES_ENDPOINT, file_id.to_string());
         let endpoint_url = Url::parse(&url_string).unwrap();
         let response = self.client.delete(endpoint_url).send().await?;
