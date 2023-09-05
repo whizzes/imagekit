@@ -72,7 +72,6 @@ mod url_tests {
             .aspect_raio("1-1");
         let options = Options::new(transformation).path("ferris_cTgKr8mAO");
         let result = imagekit.url(options);
-        dbg!(&result);
         assert!(result.is_ok());
     }
 
@@ -82,7 +81,6 @@ mod url_tests {
         let transformation = Transformation::new().aspect_raio("2-1").height(200);
         let options = Options::new(transformation).path("ferris_cTgKr8mAO");
         let result = imagekit.url(options);
-        dbg!(&result);
         assert!(result.is_ok());
     }
 
@@ -94,7 +92,6 @@ mod url_tests {
             .path("ferris_cTgKr8mAO")
             .transformation_position(crate::TransformationPosition::Query);
         let result = imagekit.url(options);
-        dbg!(&result);
         assert!(result.is_ok());
     }
 
@@ -105,7 +102,6 @@ mod url_tests {
         let src = format!("{}/ferris", imagekit.url_endpoint);
         let options = Options::new(transformation).src(src);
         let result = imagekit.url(options);
-        dbg!(&result);
         assert!(result.is_ok());
     }
 }
