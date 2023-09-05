@@ -4,6 +4,7 @@ use anyhow::Result;
 
 use crate::ImageKit;
 
+#[derive(Default)]
 pub struct Transformation {
     width: Option<u32>,
     height: Option<u32>,
@@ -13,14 +14,6 @@ pub struct Transformation {
 impl Transformation {
     pub fn new() -> Self {
         Self { ..Self::default() }
-    }
-
-    fn default() -> Self {
-        Self {
-            width: None,
-            height: None,
-            aspect_ratio: None,
-        }
     }
 
     pub fn width(mut self, val: u32) -> Self {
