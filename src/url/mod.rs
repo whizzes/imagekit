@@ -163,7 +163,9 @@ impl Url for ImageKit {
         let generated_url = match transformation_position {
             TransformationPosition::Path => {
                 let Some(path) = &opts.path else {
-                    return Err(anyhow::anyhow!("path should be set for transformation position path"));
+                    return Err(anyhow::anyhow!(
+                        "path should be set for transformation position path"
+                    ));
                 };
                 let path = path.trim_matches('/');
                 let mut generated_url = format!("{url_endpoint}/tr:{transformed}/{path}");
@@ -194,8 +196,8 @@ pub struct Utils;
 impl Utils {
     fn concat_query_parameters(opts: &Options) -> String {
         let Some(query_parameters) = opts.query_parameters.as_ref() else {
-        return String::default();
-    };
+            return String::default();
+        };
 
         let mut query = String::default();
 
