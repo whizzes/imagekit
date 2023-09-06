@@ -69,7 +69,11 @@ The following list, provides a closer view to supported features and planned
 features which are not yet implemented. Feel free to contribute by opening
 an issue, pull request or discussion.
 
-- [ ] URL Generation
+- [x] URL Generation
+  - [x] Basic Image Resizing
+  - [ ] Crop, Crop Modes and Focus
+  - [ ] Commonly Used Transformations
+- [ ] Signed URL Generation
 - [x] File Upload ([File Upload API][2])
   - [x] From `tokio::fs::File` (Binary)
   - [ ] From `std::fs::File` (Binary)
