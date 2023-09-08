@@ -105,3 +105,34 @@ mod url_tests {
         assert!(result.is_ok());
     }
 }
+
+#[cfg(test)]
+mod management_tests {
+    use crate::{
+        management::list_files::{ListFiles, Options},
+        ImageKit,
+    };
+
+    #[tokio::test]
+    async fn list_files() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let result = imagekit.list_files(Options::default()).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn list_files_with_search_query() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let options = Options::new().search_query("name=\"default-image.jpg\"");
+        let result = imagekit.list_files(options).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn list_files_with_skip_limit() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let options = Options::new().skip(1).limit(3);
+        let result = imagekit.list_files(options).await;
+        assert!(result.is_ok());
+    }
+}

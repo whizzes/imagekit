@@ -80,8 +80,8 @@ an issue, pull request or discussion.
   - [ ] From URL
   - [ ] From Base64
 - [ ] File Management
-  - [ ] List Files
-  - [ ] Search Files
+  - [x] List Files
+  - [x] Search Files
   - [x] Get File Details
   - [ ] Get File Versions
   - [ ] Get File Metadata
