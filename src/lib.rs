@@ -109,7 +109,7 @@ mod url_tests {
 #[cfg(test)]
 mod management_tests {
     use crate::{
-        management::list_files::{ListFiles, Options},
+        management::list_files::{ListFiles, Operator, Options, Search},
         ImageKit,
     };
 
@@ -121,9 +121,29 @@ mod management_tests {
     }
 
     #[tokio::test]
-    async fn list_files_with_search_query() {
+    async fn list_files_with_raw_query_string_search() {
         let imagekit = ImageKit::from_env().unwrap();
-        let options = Options::new().search_query("name=\"default-image.jpg\"");
+        let search = Search::raw_query_string("name=\"default-image.jpg\"");
+        let options = Options::new().search_query(search);
+        let result = imagekit.list_files(options).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn list_files_with_name_search() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let search = Search::name(Operator::EqualTo, "\"default-image.jpg\"");
+        let options = Options::new().search_query(search);
+        let result = imagekit.list_files(options).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn list_files_with_advanced_search() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let search = Search::size(Operator::GreaterThan, 100)
+            .and(Search::tags(Operator::In, &["summer-sale"]));
+        let options = Options::new().search_query(search);
         let result = imagekit.list_files(options).await;
         assert!(result.is_ok());
     }

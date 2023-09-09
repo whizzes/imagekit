@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::StatusCode;
@@ -21,8 +23,8 @@ impl Options {
         Self::default()
     }
 
-    pub fn search_query<T: ToString>(mut self, val: T) -> Self {
-        self.search_query = Some(val.to_string());
+    pub fn search_query(mut self, val: Search) -> Self {
+        self.search_query = Some(val.query_string());
         self
     }
 
@@ -44,6 +46,113 @@ impl Options {
     pub fn limit(mut self, val: u32) -> Self {
         self.limit = Some(val);
         self
+    }
+}
+
+pub struct Search {
+    query_string: String,
+}
+
+impl Search {
+    pub fn query_string(&self) -> String {
+        self.query_string.clone()
+    }
+
+    pub fn and(mut self, search: Search) -> Self {
+        self.query_string
+            .push_str(&format!(" and ({})", search.query_string));
+        self
+    }
+
+    pub fn or(mut self, search: Search) -> Self {
+        self.query_string
+            .push_str(&format!(" or ({})", search.query_string));
+        self
+    }
+
+    pub fn raw_query_string<T: ToString>(val: T) -> Self {
+        Self {
+            query_string: val.to_string(),
+        }
+    }
+
+    pub fn name<T: ToString>(operator: Operator, val: T) -> Self {
+        let val = val.to_string();
+        Self::raw_query_string(format!("name {operator} {val}"))
+    }
+
+    pub fn tags<T: ToString>(operator: Operator, val: &[T]) -> Self {
+        let tags = val.iter().fold(String::default(), |acc, tag| {
+            format!("{acc},\"{}\"", tag.to_string())
+        });
+        let tags = tags.trim_start_matches(',');
+        Self::raw_query_string(format!("tags {operator} [{tags}]"))
+    }
+
+    pub fn created_at<T: ToString>(operator: Operator, val: T) -> Self {
+        Self::raw_query_string(format!("createdAt {operator} {}", val.to_string()))
+    }
+
+    pub fn updated_at<T: ToString>(operator: Operator, val: T) -> Self {
+        Self::raw_query_string(format!("updatedAt {operator} {}", val.to_string()))
+    }
+
+    pub fn height<T: ToString>(operator: Operator, val: T) -> Self {
+        Self::raw_query_string(format!("height {operator} {}", val.to_string()))
+    }
+
+    pub fn width<T: ToString>(operator: Operator, val: T) -> Self {
+        Self::raw_query_string(format!("width {operator} {}", val.to_string()))
+    }
+
+    /// size in bytes
+    pub fn size(operator: Operator, val: u32) -> Self {
+        Self::raw_query_string(format!("size {operator} {val}"))
+    }
+
+    /// size in kb, mb, etc. e.g., 1mb
+    pub fn size_special<T: ToString>(operator: Operator, val: T) -> Self {
+        Self::raw_query_string(format!("size {operator} \"{}\"", val.to_string()))
+    }
+
+    pub fn private(val: bool) -> Self {
+        Self::raw_query_string(format!("private = {val}"))
+    }
+
+    pub fn published(val: bool) -> Self {
+        Self::raw_query_string(format!("published = {val}"))
+    }
+
+    pub fn transparency(val: bool) -> Self {
+        Self::raw_query_string(format!("transparency = {val}"))
+    }
+}
+
+pub enum Operator {
+    EqualTo,
+    NotEqualTo,
+    Colon,
+    In,
+    NotIn,
+    GreaterThan,
+    GreaterThanOrEqualTo,
+    LessThan,
+    LessThanOrEqualTo,
+}
+
+impl Display for Operator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Operator::EqualTo => write!(f, "="),
+            Operator::NotEqualTo => write!(f, "NOT ="),
+            Operator::Colon => write!(f, ":"),
+            Operator::In => write!(f, "IN"),
+            Operator::NotIn => write!(f, "NOT IN"),
+            Operator::GreaterThan => write!(f, ">"),
+            Operator::GreaterThanOrEqualTo => write!(f, ">="),
+            Operator::LessThan => write!(f, "<"),
+            Operator::LessThanOrEqualTo => write!(f, "<="),
+        }
     }
 }
 
