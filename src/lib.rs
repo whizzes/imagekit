@@ -156,3 +156,56 @@ mod management_tests {
         assert!(result.is_ok());
     }
 }
+#[cfg(test)]
+mod search_tests {
+    use crate::management::list_files::{Operator, Search};
+
+    #[test]
+    fn search_raw_query_string() {
+        let search = Search::raw_query_string("name=\"default-image.jpg\"");
+        let query_string = search.to_string();
+        assert_eq!(query_string, "name=\"default-image.jpg\"");
+    }
+
+    #[test]
+    fn search_name() {
+        let search = Search::name(Operator::EqualTo, "\"default-image.jpg\"");
+        let query_string = search.to_string();
+        assert_eq!(query_string, "name = \"default-image.jpg\"");
+    }
+
+    #[test]
+    fn search_size() {
+        let search = Search::size(Operator::GreaterThan, 200);
+        let query_string = search.to_string();
+        assert_eq!(query_string, "size > 200");
+    }
+
+    #[test]
+    fn search_size_special() {
+        let search = Search::size_special(Operator::GreaterThan, "1mb");
+        let query_string = search.to_string();
+        assert_eq!(query_string, "size > \"1mb\"");
+    }
+
+    #[test]
+    fn search_advanced_and() {
+        let search = Search::size(Operator::GreaterThan, 100)
+            .and(Search::tags(Operator::In, &["summer-sale"]));
+        let query_string = search.to_string();
+        assert_eq!(query_string, "size > 100 and (tags IN [\"summer-sale\"])");
+    }
+
+    #[test]
+    fn search_advanced_and_or() {
+        let search = Search::private(true).and(
+            Search::size(Operator::GreaterThan, 200)
+                .or(Search::tags(Operator::In, &["summer-sale"])),
+        );
+        let query_string = search.to_string();
+        assert_eq!(
+            query_string,
+            "private = true and (size > 200 or (tags IN [\"summer-sale\"]))"
+        );
+    }
+}
