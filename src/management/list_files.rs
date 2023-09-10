@@ -24,7 +24,7 @@ impl Options {
     }
 
     pub fn search_query(mut self, val: Search) -> Self {
-        self.search_query = Some(val.query_string());
+        self.search_query = Some(val.to_string());
         self
     }
 
@@ -54,10 +54,6 @@ pub struct Search {
 }
 
 impl Search {
-    pub fn query_string(&self) -> String {
-        self.query_string.clone()
-    }
-
     pub fn and(mut self, search: Search) -> Self {
         self.query_string
             .push_str(&format!(" and ({})", search.query_string));
@@ -125,6 +121,12 @@ impl Search {
 
     pub fn transparency(val: bool) -> Self {
         Self::raw_query_string(format!("transparency = {val}"))
+    }
+}
+
+impl Display for Search {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.query_string)
     }
 }
 
