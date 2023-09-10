@@ -11,7 +11,7 @@ use crate::{client::FILES_ENDPOINT, upload::types::Response, ErrorResponse, Imag
 /// Refer: https://docs.imagekit.io/api-reference/media-api/list-and-search-files
 #[derive(Default)]
 pub struct Options {
-    search_query: Option<String>,
+    search_query: Option<Search>,
     path: Option<String>,
     tags: Option<String>,
     skip: Option<u32>,
@@ -24,7 +24,7 @@ impl Options {
     }
 
     pub fn search_query(mut self, val: Search) -> Self {
-        self.search_query = Some(val.to_string());
+        self.search_query = Some(val);
         self
     }
 
@@ -169,7 +169,7 @@ impl ListFiles for ImageKit {
     async fn list_files(&self, opts: Options) -> Result<Vec<Response>> {
         let mut query_params = Vec::new();
         if let Some(search_query) = opts.search_query {
-            query_params.push(("searchQuery", search_query))
+            query_params.push(("searchQuery", search_query.to_string()))
         }
         if let Some(path) = opts.path {
             query_params.push(("path", path))
