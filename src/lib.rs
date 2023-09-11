@@ -109,7 +109,7 @@ mod url_tests {
 #[cfg(test)]
 mod management_tests {
     use crate::{
-        management::list_files::{ListFiles, Operator, Options, Search},
+        management::list_files::{ListFiles, Operator, Options, SearchQuery, SearchQueryBuilder},
         ImageKit,
     };
 
@@ -123,8 +123,17 @@ mod management_tests {
     #[tokio::test]
     async fn list_files_with_raw_query_string_search() {
         let imagekit = ImageKit::from_env().unwrap();
-        let search = Search::raw_query_string("name=\"default-image.jpg\"");
-        let options = Options::new().search_query(search);
+        let query = SearchQueryBuilder::raw_query_string("name=\"default-image.jpg\"").build();
+        let options = Options::new().search_query(query);
+        let result = imagekit.list_files(options).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn list_files_without_builder() {
+        let imagekit = ImageKit::from_env().unwrap();
+        let query = SearchQuery("name=\"default-image.jpg\"".into());
+        let options = Options::new().search_query(query);
         let result = imagekit.list_files(options).await;
         assert!(result.is_ok());
     }
@@ -132,8 +141,8 @@ mod management_tests {
     #[tokio::test]
     async fn list_files_with_name_search() {
         let imagekit = ImageKit::from_env().unwrap();
-        let search = Search::name(Operator::EqualTo, "\"default-image.jpg\"");
-        let options = Options::new().search_query(search);
+        let query = SearchQueryBuilder::name(Operator::EqualTo, "\"default-image.jpg\"").build();
+        let options = Options::new().search_query(query);
         let result = imagekit.list_files(options).await;
         assert!(result.is_ok());
     }
@@ -141,8 +150,9 @@ mod management_tests {
     #[tokio::test]
     async fn list_files_with_advanced_search() {
         let imagekit = ImageKit::from_env().unwrap();
-        let search = Search::size(Operator::GreaterThan, 100)
-            .and(Search::tags(Operator::In, &["summer-sale"]));
+        let search = SearchQueryBuilder::size(Operator::GreaterThan, 100)
+            .and(SearchQueryBuilder::tags(Operator::In, &["summer-sale"]).build())
+            .build();
         let options = Options::new().search_query(search);
         let result = imagekit.list_files(options).await;
         assert!(result.is_ok());
@@ -157,54 +167,61 @@ mod management_tests {
     }
 }
 #[cfg(test)]
-mod search_tests {
-    use crate::management::list_files::{Operator, Search};
+mod search_query_builder_tests {
+    use crate::management::list_files::{Operator, SearchQuery, SearchQueryBuilder};
 
     #[test]
     fn search_raw_query_string() {
-        let search = Search::raw_query_string("name=\"default-image.jpg\"");
-        let query_string = search.to_string();
-        assert_eq!(query_string, "name=\"default-image.jpg\"");
+        let query = SearchQueryBuilder::raw_query_string("name=\"default-image.jpg\"").build();
+        assert_eq!(query.to_string(), "name=\"default-image.jpg\"");
+    }
+
+    #[test]
+    fn search_without_builder() {
+        let query = SearchQuery("name=\"default-image.jpg\"".into());
+        assert_eq!(query.to_string(), "name=\"default-image.jpg\"");
     }
 
     #[test]
     fn search_name() {
-        let search = Search::name(Operator::EqualTo, "\"default-image.jpg\"");
-        let query_string = search.to_string();
-        assert_eq!(query_string, "name = \"default-image.jpg\"");
+        let query = SearchQueryBuilder::name(Operator::EqualTo, "\"default-image.jpg\"").build();
+        assert_eq!(query.to_string(), "name = \"default-image.jpg\"");
     }
 
     #[test]
     fn search_size() {
-        let search = Search::size(Operator::GreaterThan, 200);
-        let query_string = search.to_string();
-        assert_eq!(query_string, "size > 200");
+        let query = SearchQueryBuilder::size(Operator::GreaterThan, 200).build();
+        assert_eq!(query.to_string(), "size > 200");
     }
 
     #[test]
     fn search_size_special() {
-        let search = Search::size_special(Operator::GreaterThan, "1mb");
-        let query_string = search.to_string();
-        assert_eq!(query_string, "size > \"1mb\"");
+        let query = SearchQueryBuilder::size_special(Operator::GreaterThan, "1mb").build();
+        assert_eq!(query.to_string(), "size > \"1mb\"");
     }
 
     #[test]
     fn search_advanced_and() {
-        let search = Search::size(Operator::GreaterThan, 100)
-            .and(Search::tags(Operator::In, &["summer-sale"]));
-        let query_string = search.to_string();
-        assert_eq!(query_string, "size > 100 and (tags IN [\"summer-sale\"])");
+        let query = SearchQueryBuilder::size(Operator::GreaterThan, 100)
+            .and(SearchQueryBuilder::tags(Operator::In, &["summer-sale"]).build())
+            .build();
+        assert_eq!(
+            query.to_string(),
+            "size > 100 and (tags IN [\"summer-sale\"])"
+        );
     }
 
     #[test]
     fn search_advanced_and_or() {
-        let search = Search::private(true).and(
-            Search::size(Operator::GreaterThan, 200)
-                .or(Search::tags(Operator::In, &["summer-sale"])),
-        );
-        let query_string = search.to_string();
+        let query = SearchQueryBuilder::private(true)
+            .and(
+                SearchQueryBuilder::size(Operator::GreaterThan, 200)
+                    .or(SearchQueryBuilder::tags(Operator::In, &["summer-sale"]).build())
+                    .build(),
+            )
+            .build();
         assert_eq!(
-            query_string,
+            query.to_string(),
             "private = true and (size > 200 or (tags IN [\"summer-sale\"]))"
         );
     }

@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{borrow::Cow, fmt::Display};
 
 use anyhow::{bail, Result};
 use async_trait::async_trait;
@@ -11,7 +11,7 @@ use crate::{client::FILES_ENDPOINT, upload::types::Response, ErrorResponse, Imag
 /// Refer: https://docs.imagekit.io/api-reference/media-api/list-and-search-files
 #[derive(Default)]
 pub struct Options {
-    search_query: Option<Search>,
+    search_query: Option<SearchQuery>,
     path: Option<String>,
     tags: Option<String>,
     skip: Option<u32>,
@@ -23,7 +23,7 @@ impl Options {
         Self::default()
     }
 
-    pub fn search_query(mut self, val: Search) -> Self {
+    pub fn search_query(mut self, val: SearchQuery) -> Self {
         self.search_query = Some(val);
         self
     }
@@ -49,20 +49,24 @@ impl Options {
     }
 }
 
-pub struct Search {
+pub struct SearchQueryBuilder {
     query_string: String,
 }
 
-impl Search {
-    pub fn and(mut self, search: Search) -> Self {
+impl SearchQueryBuilder {
+    pub fn build(self) -> SearchQuery {
+        SearchQuery(self.query_string.into())
+    }
+
+    pub fn and(mut self, search_query: SearchQuery) -> Self {
         self.query_string
-            .push_str(&format!(" and ({})", search.query_string));
+            .push_str(&format!(" and ({})", search_query));
         self
     }
 
-    pub fn or(mut self, search: Search) -> Self {
+    pub fn or(mut self, search_query: SearchQuery) -> Self {
         self.query_string
-            .push_str(&format!(" or ({})", search.query_string));
+            .push_str(&format!(" or ({})", search_query));
         self
     }
 
@@ -124,9 +128,11 @@ impl Search {
     }
 }
 
-impl Display for Search {
+pub struct SearchQuery(pub Cow<'static, str>);
+
+impl Display for SearchQuery {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.query_string)
+        write!(f, "{}", self.0)
     }
 }
 
