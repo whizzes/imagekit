@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Display};
+use std::fmt::Display;
 
 use anyhow::{bail, Result};
 use async_trait::async_trait;
@@ -49,15 +49,17 @@ impl Options {
     }
 }
 
-pub struct SearchQueryBuilder {
+pub struct SearchQuery {
     query_string: String,
 }
 
-impl SearchQueryBuilder {
-    pub fn build(self) -> SearchQuery {
-        SearchQuery(self.query_string.into())
+impl Display for SearchQuery {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.query_string)
     }
+}
 
+impl SearchQuery {
     pub fn and(mut self, search_query: SearchQuery) -> Self {
         self.query_string
             .push_str(&format!(" and ({})", search_query));
@@ -78,7 +80,9 @@ impl SearchQueryBuilder {
 
     pub fn name<T: ToString>(operator: Operator, val: T) -> Self {
         let val = val.to_string();
-        Self::raw_query_string(format!("name {operator} {val}"))
+        Self {
+            query_string: format!("name {operator} {val}"),
+        }
     }
 
     pub fn tags<T: ToString>(operator: Operator, val: &[T]) -> Self {
@@ -86,53 +90,65 @@ impl SearchQueryBuilder {
             format!("{acc},\"{}\"", tag.to_string())
         });
         let tags = tags.trim_start_matches(',');
-        Self::raw_query_string(format!("tags {operator} [{tags}]"))
+        Self {
+            query_string: format!("tags {operator} [{tags}]"),
+        }
     }
 
     pub fn created_at<T: ToString>(operator: Operator, val: T) -> Self {
-        Self::raw_query_string(format!("createdAt {operator} {}", val.to_string()))
+        Self {
+            query_string: format!("createdAt {operator} {}", val.to_string()),
+        }
     }
 
     pub fn updated_at<T: ToString>(operator: Operator, val: T) -> Self {
-        Self::raw_query_string(format!("updatedAt {operator} {}", val.to_string()))
+        Self {
+            query_string: format!("updatedAt {operator} {}", val.to_string()),
+        }
     }
 
     pub fn height<T: ToString>(operator: Operator, val: T) -> Self {
-        Self::raw_query_string(format!("height {operator} {}", val.to_string()))
+        Self {
+            query_string: format!("height {operator} {}", val.to_string()),
+        }
     }
 
     pub fn width<T: ToString>(operator: Operator, val: T) -> Self {
-        Self::raw_query_string(format!("width {operator} {}", val.to_string()))
+        Self {
+            query_string: format!("width {operator} {}", val.to_string()),
+        }
     }
 
     /// size in bytes
     pub fn size(operator: Operator, val: u32) -> Self {
-        Self::raw_query_string(format!("size {operator} {val}"))
+        Self {
+            query_string: format!("size {operator} {val}"),
+        }
     }
 
     /// size in kb, mb, etc. e.g., 1mb
     pub fn size_special<T: ToString>(operator: Operator, val: T) -> Self {
-        Self::raw_query_string(format!("size {operator} \"{}\"", val.to_string()))
+        Self {
+            query_string: format!("size {operator} \"{}\"", val.to_string()),
+        }
     }
 
     pub fn private(val: bool) -> Self {
-        Self::raw_query_string(format!("private = {val}"))
+        Self {
+            query_string: format!("private = {val}"),
+        }
     }
 
     pub fn published(val: bool) -> Self {
-        Self::raw_query_string(format!("published = {val}"))
+        Self {
+            query_string: format!("published = {val}"),
+        }
     }
 
     pub fn transparency(val: bool) -> Self {
-        Self::raw_query_string(format!("transparency = {val}"))
-    }
-}
-
-pub struct SearchQuery(pub Cow<'static, str>);
-
-impl Display for SearchQuery {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        Self {
+            query_string: format!("transparency = {val}"),
+        }
     }
 }
 
