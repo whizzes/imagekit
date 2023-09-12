@@ -141,9 +141,9 @@ mod management_tests {
     #[tokio::test]
     async fn list_files_with_advanced_search() {
         let imagekit = ImageKit::from_env().unwrap();
-        let search = SearchQuery::size(Operator::GreaterThan, 100)
+        let query = SearchQuery::size(Operator::GreaterThan, 100)
             .and(SearchQuery::tags(Operator::In, &["summer-sale"]));
-        let options = Options::new().search_query(search);
+        let options = Options::new().search_query(query);
         let result = imagekit.list_files(options).await;
         assert!(result.is_ok());
     }
