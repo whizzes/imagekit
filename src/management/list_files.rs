@@ -59,96 +59,98 @@ impl Display for SearchQuery {
     }
 }
 
+pub struct SearchQueryError;
+
 impl SearchQuery {
-    pub fn and(mut self, search_query: SearchQuery) -> Self {
+    pub fn and(mut self, search_query: SearchQuery) -> Result<Self> {
         self.query_string
             .push_str(&format!(" and ({})", search_query));
-        self
+        Ok(self)
     }
 
-    pub fn or(mut self, search_query: SearchQuery) -> Self {
+    pub fn or(mut self, search_query: SearchQuery) -> Result<Self> {
         self.query_string
             .push_str(&format!(" or ({})", search_query));
-        self
+        Ok(self)
     }
 
-    pub fn raw_query_string<T: ToString>(val: T) -> Self {
-        Self {
+    pub fn raw_query_string<T: ToString>(val: T) -> Result<Self> {
+        Ok(Self {
             query_string: val.to_string(),
-        }
+        })
     }
 
-    pub fn name<T: ToString>(operator: Operator, val: T) -> Self {
+    pub fn name<T: ToString>(operator: Operator, val: T) -> Result<Self> {
         let val = val.to_string();
-        Self {
+        Ok(Self {
             query_string: format!("name {operator} {val}"),
-        }
+        })
     }
 
-    pub fn tags<T: ToString>(operator: Operator, val: &[T]) -> Self {
+    pub fn tags<T: ToString>(operator: Operator, val: &[T]) -> Result<Self> {
         let tags = val.iter().fold(String::default(), |acc, tag| {
             format!("{acc},\"{}\"", tag.to_string())
         });
         let tags = tags.trim_start_matches(',');
-        Self {
+        Ok(Self {
             query_string: format!("tags {operator} [{tags}]"),
-        }
+        })
     }
 
-    pub fn created_at<T: ToString>(operator: Operator, val: T) -> Self {
-        Self {
+    pub fn created_at<T: ToString>(operator: Operator, val: T) -> Result<Self> {
+        Ok(Self {
             query_string: format!("createdAt {operator} {}", val.to_string()),
-        }
+        })
     }
 
-    pub fn updated_at<T: ToString>(operator: Operator, val: T) -> Self {
-        Self {
+    pub fn updated_at<T: ToString>(operator: Operator, val: T) -> Result<Self> {
+        Ok(Self {
             query_string: format!("updatedAt {operator} {}", val.to_string()),
-        }
+        })
     }
 
-    pub fn height<T: ToString>(operator: Operator, val: T) -> Self {
-        Self {
+    pub fn height<T: ToString>(operator: Operator, val: T) -> Result<Self> {
+        Ok(Self {
             query_string: format!("height {operator} {}", val.to_string()),
-        }
+        })
     }
 
-    pub fn width<T: ToString>(operator: Operator, val: T) -> Self {
-        Self {
+    pub fn width<T: ToString>(operator: Operator, val: T) -> Result<Self> {
+        Ok(Self {
             query_string: format!("width {operator} {}", val.to_string()),
-        }
+        })
     }
 
     /// size in bytes
-    pub fn size(operator: Operator, val: u32) -> Self {
-        Self {
+    pub fn size(operator: Operator, val: u32) -> Result<Self> {
+        Ok(Self {
             query_string: format!("size {operator} {val}"),
-        }
+        })
     }
 
     /// size in kb, mb, etc. e.g., 1mb
-    pub fn size_special<T: ToString>(operator: Operator, val: T) -> Self {
-        Self {
+    pub fn size_special<T: ToString>(operator: Operator, val: T) -> Result<Self> {
+        Ok(Self {
             query_string: format!("size {operator} \"{}\"", val.to_string()),
-        }
+        })
     }
 
-    pub fn private(val: bool) -> Self {
-        Self {
+    pub fn private(val: bool) -> Result<Self> {
+        Ok(Self {
             query_string: format!("private = {val}"),
-        }
+        })
     }
 
-    pub fn published(val: bool) -> Self {
-        Self {
+    pub fn published(val: bool) -> Result<Self> {
+        Ok(Self {
             query_string: format!("published = {val}"),
-        }
+        })
     }
 
-    pub fn transparency(val: bool) -> Self {
-        Self {
+    pub fn transparency(val: bool) -> Result<Self> {
+        Ok(Self {
             query_string: format!("transparency = {val}"),
-        }
+        })
     }
 }
 
