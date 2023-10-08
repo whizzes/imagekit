@@ -1,5 +1,6 @@
 pub mod client;
 pub mod delete;
+pub mod error;
 pub mod management;
 pub mod types;
 pub mod upload;

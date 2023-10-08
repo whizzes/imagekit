@@ -1,6 +1,7 @@
 use std::env::var;
 
-use anyhow::{bail, Result};
+use crate::error::Error;
+use anyhow::Result;
 use http_auth_basic::Credentials;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::{Client, ClientBuilder};
@@ -32,7 +33,7 @@ pub struct ImageKit {
 }
 
 impl ImageKit {
-    pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Result<Self> {
+    pub fn new<T: ToString>(public_key: T, private_key: T, url_endpoint: T) -> Result<Self, Error> {
         let creds = Credentials::new(&private_key.to_string(), "").as_http_header();
         let mut headers = HeaderMap::new();
 
@@ -48,7 +49,7 @@ impl ImageKit {
         })
     }
 
-    pub fn from_env() -> Result<Self> {
+    pub fn from_env() -> Result<Self, Error> {
         let public_key = ImageKit::env("IMAGEKIT_PUBLIC_KEY")?;
         let private_key = ImageKit::env("IMAGEKIT_PRIVATE_KEY")?;
         let url_endpoint = ImageKit::env("IMAGEKIT_URL_ENDPOINT")?;
@@ -57,10 +58,10 @@ impl ImageKit {
         Ok(imagekit)
     }
 
-    fn env(key: &str) -> Result<String> {
+    fn env(key: &str) -> Result<String, Error> {
         match var(key) {
             Ok(value) => Ok(value),
-            Err(err) => bail!(err),
+            Err(err) => Err(Error::Env(err)),
         }
     }
 }

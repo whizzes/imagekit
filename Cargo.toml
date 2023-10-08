@@ -20,8 +20,9 @@ rustls-tls = ["reqwest/rustls-tls"]
 anyhow = "1.0.58"
 async-trait = "0.1.56"
 http-auth-basic = "0.3.3"
-reqwest = { version = "0.11.15", features = ["json", "multipart", "stream"], default_features = false }
-serde = { version = "1.0.138", features = ["derive"] }
+reqwest = { version = "0.11.18", features = ["json", "multipart", "stream"], default_features = false }
+serde = { version = "1.0.180", features = ["derive"] }
 serde_json = "1.0.82"
+thiserror = "1.0.44"
 tokio = { version = "1.19.2", features = ["macros", "rt-multi-thread"] }
 tokio-util = { version = "0.7.3", features = ["codec"] }

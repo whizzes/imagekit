@@ -2,7 +2,6 @@ pub mod types;
 
 use std::io::Cursor;
 
-use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, StatusCode};
@@ -10,7 +9,8 @@ use tokio::fs::File;
 use tokio::io::BufReader;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::{ErrorResponse, ImageKit};
+use crate::error::{Error, Result};
+use crate::ImageKit;
 
 use self::types::Response;
 
@@ -119,8 +119,7 @@ impl Upload for ImageKit {
             .post(opts.endpoint)
             .multipart(form)
             .send()
-            .await
-            .unwrap();
+            .await?;
 
         if matches!(response.status(), StatusCode::OK) {
             let result = response.json::<Response>().await.unwrap();
@@ -128,8 +127,7 @@ impl Upload for ImageKit {
             return Ok(result);
         }
 
-        let result = response.json::<ErrorResponse>().await.unwrap();
-
-        bail!(result.message);
+        let error = Error::from_error_code(response.status(), &response.text().await?);
+        return Err(error);
     }
 }

@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
-use anyhow::{bail, Result};
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
-use crate::{client::FILES_ENDPOINT, upload::types::Response, ErrorResponse, ImageKit};
+use crate::client::ImageKit;
+use crate::client::FILES_ENDPOINT;
+use crate::error::{Error, Result};
+use crate::upload::types::Response;
 
 #[async_trait]
 pub trait Details {
@@ -27,8 +29,7 @@ impl Details for ImageKit {
             return Ok(result);
         }
 
-        let result = response.json::<ErrorResponse>().await.unwrap();
-
-        bail!(result.message);
+        let error = Error::from_error_code(response.status(), &response.text().await?);
+        return Err(error);
     }
 }
